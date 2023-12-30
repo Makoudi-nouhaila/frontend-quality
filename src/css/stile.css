@@ -1,0 +1,22 @@
+/* Ajoutez ces styles à votre fichier CSS ou SCSS */
+
+/* Espace entre les boutons */
+.space-between-buttons {
+    margin-right: 10px; /* Ajustez la marge selon vos besoins */
+  }
+  
+  /* Style personnalisé pour les boutons */
+  .btn-primary {
+    background-color: #4CAF50; /* Couleur de fond du bouton */
+    color: #ffffff; /* Couleur du texte du bouton */
+    border: none; /* Supprime la bordure du bouton */
+    padding: 10px 20px; /* Ajoute du rembourrage pour un meilleur aspect */
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 5px; /* Ajoute un coin arrondi au bouton */
+  }
+  
