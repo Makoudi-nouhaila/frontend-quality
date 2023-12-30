@@ -48,7 +48,7 @@ export default function SignIn() {
       Cookies.set("blog", token, { path: "/api", expires: 1 });
       localStorage.setItem("user", JSON.stringify(response.data));
 
-      navigate("/home");
+      navigate(`/home/${user.id}`);
     } catch (error) {
       if (error.response && error.response.status === 401) {
         setErrorMessage("Nom d'utilisateur ou mot de passe incorrect.");

@@ -22,42 +22,39 @@ import Footer from "../visiteur/Footer";
 import { useLocation } from "react-router-dom";
 
 const Categoriepage = () => {
-
   const location = useLocation();
-    const object = location.state.categorie;
+  const object = location.state?.categorie;
 
-    const [categorie, setCategorie] = useState({
-      id:object.id,
-      nom:object.nom
-
+  const [categorie, setCategorie] = useState({
+    id: object?.id || "",
+    nom: object?.nom || "",
   });
 
   const onInputChange = (e) => {
-    setCategorie({...categorie,[e.target.name]:e.target.value});
-  }
+    setCategorie({ ...categorie, [e.target.name]: e.target.value });
+  };
 
-  const [response,setResponse]=useState({status : false});
+  const [response, setResponse] = useState({ status: false });
 
-  const onSubmit = async(e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     let data = JSON.stringify(categorie);
-    let head = {"content-type":"application/json"};
-    fetch('http://localhost:8080/blog/categorie',{
-      method:"PUT",
-      headers:head,
-      body:data,
+    let head = { "content-type": "application/json" };
+    fetch("http://localhost:8080/blog/categorie/", {
+      method: "PUT",
+      headers: head,
+      body: data,
     })
-    .then((response)=>response.json())
-    .then((data)=>{
-      setResponse(response);
-      console.log(response);
-    })
-    .catch((er)=>{
-      console.log(er);
-    });
-  }
+      .then((response) => response.json())
+      .then((data) => {
+        setResponse(response);
+        console.log(response);
+      })
+      .catch((er) => {
+        console.log(er);
+      });
+  };
 
-  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
@@ -73,7 +70,8 @@ const Categoriepage = () => {
 
   const toggleUpdateModal = (category) => {
     setCategoryToUpdate(category);
-    setUpdateCategoryName(category?.nom || ""); // Use optional chaining to handle null case
+    setUpdateCategoryName(category?.nom || "");
+    setCategorie({ id: category?.id || "", nom: category?.nom || "" });
     setUpdateModalOpen(!updateModalOpen);
   };
 
@@ -108,29 +106,27 @@ const Categoriepage = () => {
 
   const handleUpdateCategory = async () => {
     try {
-      console.log("Updating category with name:", updateCategoryName);
-      const response = await fetch(
-        `http://localhost:8080/blog/categorie/${categoryToUpdate.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ nom: updateCategoryName }),
-        }
-      );
-  
-      console.log("Response status:", response.status);
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+      console.log("Updating category with name:", categorie);
+      let data = JSON.stringify(categorie);
+      let head = { "Content-Type": "application/json" };
+
+      const response = await fetch("http://localhost:8080/blog/categorie", {
+        method: "PUT",
+        headers: head,
+        body: data,
+      });
+
+      // Check if the response is successful
+      if (response.ok) {
+        // Reload categories after updating
+        loadCategories();
+
+        // Close the update modal
+        toggleUpdateModal(null);
+      } else {
+        // Handle non-successful response here
+        console.error("Error updating category. HTTP error:", response.status);
       }
-  
-      // Reload categories after updating
-      loadCategories();
-  
-      // Close the update modal
-      toggleUpdateModal(null);
     } catch (error) {
       console.error("Error updating category:", error);
     }
@@ -162,36 +158,20 @@ const Categoriepage = () => {
     }
   };
 
-  const loadCategories = async () => {
-    try {
-      const response = await fetch("http://localhost:8080/blog/categories", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setCategories(data);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
+  const loadCategories = () => {
+    fetch("http://localhost:8080/blog/categories")
+      .then((response) => response.json())
+      .then((data) => setCategories(data));
   };
 
   useEffect(() => {
     loadCategories();
   }, []);
 
-
-
   return (
     <>
-    <Layoutprop/>
-      <Container className="mt--7" fluid style={{padding:"60px"}}>
+      <Layoutprop />
+      <Container className="mt--7" fluid style={{ padding: "60px" }}>
         <Row>
           <Col className="order-xl-1" xl="12">
             <Card className="bg-secondary shadow">
@@ -278,7 +258,7 @@ const Categoriepage = () => {
           Update Category
         </ModalHeader>
         <ModalBody>
-          <Form onSubmit={(e)=> onSubmit(e)}>
+          <Form onSubmit={(e) => onSubmit(e)}>
             <FormGroup>
               <label htmlFor="updateCategoryName">Category Name</label>
               <Input
@@ -286,16 +266,16 @@ const Categoriepage = () => {
                 id="updateCategoryName"
                 placeholder="Nom de categorie"
                 name="nom"
-                onChange={(e)=>onInputChange(e)}
+                onChange={(e) => onInputChange(e)}
                 value={categorie.nom}
               />
             </FormGroup>
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button color="info" >
+          <Button color="info" onClick={() => handleUpdateCategory()}>
             Update
-          </Button>{" "}
+          </Button>
           <Button color="secondary" onClick={() => toggleUpdateModal(null)}>
             Cancel
           </Button>
@@ -308,7 +288,8 @@ const Categoriepage = () => {
           Confirm Deletion
         </ModalHeader>
         <ModalBody>
-          Are you sure you want to delete the category "{categoryToDelete?.nom}"?
+          Are you sure you want to delete the category "{categoryToDelete?.nom}
+          "?
         </ModalBody>
         <ModalFooter>
           <Button color="danger" onClick={handleDeleteCategory}>
