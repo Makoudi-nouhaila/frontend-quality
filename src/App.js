@@ -44,7 +44,7 @@ function App() {
           path="/articleadmin"
           element={<PrivateRoute element={<Articleprop />} />}
         />
-        <Route path="/articledetail/:id" component={ArticleDetail} />
+        <Route path="/articledetail/:id" element={<ArticleDetail />} />
 
         <Route path="/articledit/:id" element={<EditArticle />} />
         <Route path="/articladd" element={<AddArticle />} />
