@@ -1,34 +1,37 @@
 import React, { useEffect, useState } from "react";
 import Layoutprop from "./Layoutprop";
 import Footer from "../visiteur/Footer";
-import { useLocation, useNavigate } from "react-router-dom/dist";
+import { useNavigate } from "react-router-dom/dist";
 
-const EditArticle = () => {
-  const location = useLocation();
-  const object = location.state.article;
+const AddArticle = () => {
   const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const currentDate = new Date();
   const [formData, setFormData] = useState({
-    id: object.id,
-    titre: object.titre,
-    photo: object.photo,
-    texte: object.texte,
-    date: object.date,
-    lien: object.lien,
+    id: "",
+    titre: "",
+    photo: "",
+    texte: "",
+    date: currentDate.toISOString(),
+    lien: "",
     categorie: {
-      id: object.categorie.id,
-      nom: "",
+      id: "",
+    },
+    user: {
+      id: "",
     },
   });
+
   const [errors, setErrors] = useState({});
-  const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(object.categorie.id);
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
 
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData({ ...formData, image: reader.result });
+        setFormData({ ...formData, photo: reader.result });
       };
       reader.readAsDataURL(file);
     }
@@ -47,35 +50,25 @@ const EditArticle = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Basic validation
-    const newErrors = {};
-    if (!formData.titre) newErrors.titre = "Title is required";
-    if (!formData.photo) newErrors.photo = "Image URL is required";
-    if (!formData.texte) newErrors.texte = "Text is required";
-    if (!formData.categorie.id) newErrors.categorie = "Category is required";
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+    console.log("Submit button clicked!");
 
     try {
-      const response = await fetch(`http://localhost:8080/blog/article`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+      const head = { "Content-Type": "application/json" };
+      const body = JSON.stringify(formData);
+      console.log(body);
+      const response = await fetch("http://localhost:8080/blog/article", {
+        method: "POST",
+        headers: head,
+        body: body,
       });
 
       if (response.ok) {
         navigate("/articleadmin");
       } else {
-        console.error("Failed to update article");
+        console.error("Failed to create article");
       }
     } catch (error) {
-      console.error("Error updating article:", error);
+      console.error("Error creating article:", error);
     }
   };
 
@@ -88,11 +81,31 @@ const EditArticle = () => {
   const handleCategoryChange = (event) => {
     const category = event.target.value;
     setSelectedCategory(category);
-  };
-  useEffect(() => {
-    loadCategories();
-  }, []);
 
+    setFormData({
+      ...formData,
+      categorie: {
+        id: category,
+      },
+    });
+  };
+
+  useEffect(() => {
+    const loadUserFromLocalStorage = () => {
+      const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
+      if (userFromLocalStorage) {
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          user: {
+            id: userFromLocalStorage.id,
+          },
+        }));
+      }
+    };
+
+    loadCategories();
+    loadUserFromLocalStorage();
+  }, []);
   return (
     <>
       <Layoutprop></Layoutprop>
@@ -112,7 +125,7 @@ const EditArticle = () => {
               value={formData.titre}
               onChange={(e) => handleChange(e)}
             />
-            {errors.title && (
+            {errors.titre && (
               <div className="invalid-feedback">{errors.titre}</div>
             )}
           </div>
@@ -209,4 +222,4 @@ const EditArticle = () => {
   );
 };
 
-export default EditArticle;
+export default AddArticle;

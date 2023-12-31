@@ -14,6 +14,7 @@ import CategoryPage from "./components/pro/Categoriepage";
 import HomePage from "./components/pro/HomePage";
 import SignIn from "./components/pro/signin";
 import SignUp from "./components/pro/signup";
+import AddArticle from "./components/pro/AddArticle";
 
 const isAuthenticated = () => {
   return localStorage.getItem("user") !== null;
@@ -31,9 +32,6 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/articles" element={<Articles />} />
-        <Route path="/article/:id" element={<ArticleDetail />} />
-
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/" element={<SignIn />} />
@@ -41,17 +39,18 @@ function App() {
           path="/home/:id"
           element={<PrivateRoute element={<HomePage />} />}
         />
+        <Route path="/articles" element={<Articles />} />
         <Route
           path="/articleadmin"
           element={<PrivateRoute element={<Articleprop />} />}
         />
+        <Route path="/articledetail/:id" component={ArticleDetail} />
+
+        <Route path="/articledit/:id" element={<EditArticle />} />
+        <Route path="/articladd" element={<AddArticle />} />
         <Route
           path="/categorie"
           element={<PrivateRoute element={<CategoryPage />} />}
-        />
-        <Route
-          path="/articledit"
-          element={<PrivateRoute element={<EditArticle />} />}
         />
       </Routes>
     </Router>
